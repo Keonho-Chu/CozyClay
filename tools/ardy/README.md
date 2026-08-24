@@ -161,7 +161,7 @@ first:
 
 1. SSH reachability (`BatchMode` + `ConnectTimeout`, so a dead host or a
    missing key errors in seconds, not minutes).
-2. `~/ardy/.venv/bin/python` and `scripts/cclay_constrained_generate.py`
+2. `~/ardy/.venv-cuda/bin/python` and `scripts/cclay_constrained_generate.py`
    exist on the box (points at `sync-to-box --apply` when missing).
 3. The base motion resolves to a file that exists on the box.
 4. The device probe: the one-line torch check mirroring the generator's

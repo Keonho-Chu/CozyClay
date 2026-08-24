@@ -56,7 +56,7 @@
 # env (names shared with CozyClay scripts/ardy/sync-to-box):
 #   CCLAY_ARDY_HOST  ssh destination for the ARDY host (required)
 #   CCLAY_ARDY_REPO  ARDY checkout on the box       (default $HOME/ardy)
-#   CCLAY_ARDY_VENV  venv python on the box         (default ~/ardy/.venv/bin/python)
+#   CCLAY_ARDY_VENV  venv python on the box         (default ~/ardy/.venv-cuda/bin/python)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -138,16 +138,18 @@ See [`tools/ardy/README.md`](tools/ardy/README.md) for details. This workflow is
 | Right-drag | Look around (fly) |
 | RMB + WASD | Walk while flying |
 | RMB + Q/E | Crane down / up |
+| RMB + Shift | Boost fly speed 2.6× |
 | Middle-drag | Pan |
 | Alt + drag | Orbit the selection |
-| Scroll | Dolly |
+| Scroll | Dolly; while flying, sets the fly speed instead |
 | Click | Select; empty space clears |
 | W / E / R | Move / rotate / scale tool |
-| Ctrl (during drag) | Invert grid snapping |
+| Ctrl/Cmd (during drag) | Invert grid snapping |
 | Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z | Undo / redo |
 | Esc | Cancel the in-flight drag |
 | End | Drop the selection to the surface |
 | Ctrl/Cmd+D | Duplicate the selection |
+| Delete / Backspace | Delete the selection |
 | F | Frame the selection |
 
 ## Validate

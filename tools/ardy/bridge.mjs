@@ -1006,7 +1006,7 @@ remote mode (generation on an ssh box):
   CCLAY_ARDY_VENV         generator venv python on the box (default ~/ardy/.venv-cuda/bin/python)
   CCLAY_ARDY_ENCODER_URL  text encoder service           (default http://127.0.0.1:9550/)
 
-local mode (generation on this machine; run tools/ardy/setup-local.sh once):
+local mode (generation on this machine; run npm run ardy:setup once):
   CCLAY_ARDY_LOCAL_DIR    local ARDY checkout            (default ~/.cozyclay/ardy)
   CCLAY_ARDY_LOCAL_VENV   generator venv python          (default <local-dir>/.venv/bin/python)
   CCLAY_ARDY_ENCODER_URL  text encoder service           (default http://127.0.0.1:9550/)
