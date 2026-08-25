@@ -112,7 +112,7 @@ assert.equal(koLocale.ko("Frame", "프레임"), "프레임");
 assert.equal(koLocale.ko("Collapse timeline", "타임라인 접기"), "타임라인 접기");
 
 // Files converted to the English-default + Korean-option pattern.
-for (const path of ["src/result-modal.jsx", "src/hierarchy-panel.jsx", "src/object-catalog.jsx"]) {
+for (const path of ["src/result-modal.jsx", "src/hierarchy-panel.jsx", "src/object-catalog.jsx", "src/error-boundary.jsx"]) {
 	assertKoreanInsideLocaleConstructs(path);
 	assertKoPairsHaveBothSides(path);
 }

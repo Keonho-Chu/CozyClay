@@ -1029,6 +1029,34 @@ function RenderLoopController({ stageRef }) {
 	return null;
 }
 
+/** GPU resets — sleep/wake, a driver restart, VRAM pressure from an export —
+ * kill the WebGL context, and without listeners the stage goes black and
+ * stays black with no message. preventDefault on webglcontextlost is the
+ * documented opt-in for browser-driven restoration; on restore, kick the
+ * demand loop so the first frame actually paints. */
+function ContextLossGuard({ onLostChange }) {
+	const gl = useThree((state) => state.gl);
+	const invalidate = useThree((state) => state.invalidate);
+	useEffect(() => {
+		const canvas = gl.domElement;
+		const onLost = (event) => {
+			event.preventDefault();
+			onLostChange(true);
+		};
+		const onRestored = () => {
+			onLostChange(false);
+			invalidate();
+		};
+		canvas.addEventListener("webglcontextlost", onLost);
+		canvas.addEventListener("webglcontextrestored", onRestored);
+		return () => {
+			canvas.removeEventListener("webglcontextlost", onLost);
+			canvas.removeEventListener("webglcontextrestored", onRestored);
+		};
+	}, [gl, invalidate, onLostChange]);
+	return null;
+}
+
 function ViewportLayoutInvalidator({ insetX, insetY, insetWidth, insetHeight, hierarchyWidth, sidebarWidth, timelineHeight, planZoom }) {
 	const invalidate = useThree((state) => state.invalidate);
 	useEffect(() => {
@@ -1723,7 +1751,12 @@ globalThis.playMode = centerTab === "play";
 	const planHostRef = planIsMain ? mainPaneRef : insetPaneRef;
 
 	useEffect(() => {
-		localStorage.setItem(WORKSPACE_LAYOUT_KEY, JSON.stringify(workspaceLayout));
+		try {
+			localStorage.setItem(WORKSPACE_LAYOUT_KEY, JSON.stringify(workspaceLayout));
+		} catch {
+			// Full or blocked storage must not crash a panel resize; the
+			// layout simply does not persist this session.
+		}
 	}, [workspaceLayout]);
 
 	// Wheel over the inset zooms the Top-View plan: scroll up closes in on
@@ -2875,6 +2908,7 @@ globalThis.playMode = centerTab === "play";
 	const [copied, setCopied] = useState(false);
 	const [recordedVideoName, setRecordedVideoName] = useState(null);
 	const [toast, setToast] = useState(startup.toast ?? "");
+	const [glContextLost, setGlContextLost] = useState(false);
 	const [bridge, setBridge] = useState(null);
 	const [ardyPrompt, setArdyPrompt] = useState("");
 	const [ardyDuration, setArdyDuration] = useState(4); // matches the 4 s generation cap
@@ -7120,6 +7154,7 @@ function resizePromptClip(id, edge, rawFrame) {
 						    shadow is the cue that says a subject stands ON the deck rather
 						    than floats above it — without walls it is the only one left. */}
 						<Canvas shadows frameloop={renderActive ? "always" : "demand"} dpr={[1, 2]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
+							<ContextLossGuard onLostChange={setGlContextLost} />
 							<RenderLoopController stageRef={stageRef} />
 							<ViewportLayoutInvalidator
 								insetX={insetPos?.x ?? null}
@@ -7455,6 +7490,16 @@ function resizePromptClip(id, edge, rawFrame) {
 								shotAspect={shotOutput.aspect}
 							/>
 						</Canvas>
+
+						{glContextLost && (
+							<div className="gl-lost-overlay" role="alert">
+								<div className="gl-lost-card">
+									<strong>{ko("The 3D view lost its graphics context", "3D 뷰가 그래픽 컨텍스트를 잃었어요")}</strong>
+									<p>{ko("Waiting for the browser to restore it. If this stays, reload the studio — scenes autosave.", "브라우저가 복구하기를 기다리는 중이에요. 계속 멈춰 있으면 새로고침하세요 — 장면은 자동 저장됩니다.")}</p>
+									<button type="button" onClick={() => window.location.reload()}>{ko("Reload", "새로고침")}</button>
+								</div>
+							</div>
+						)}
 
 						<div ref={mainPaneRef} className={"vp-pane vp-main" + (planIsMain ? " plan" : "")} />
 						<div

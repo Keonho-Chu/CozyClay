@@ -75,6 +75,7 @@ const NODE_FILES = [
 	"test/verify-project.mjs",
 	"test/verify-pwa.mjs",
 	"test/verify-package-signature.mjs",
+	"test/verify-resilience.mjs",
 	"test/verify-retime.mjs",
 	"test/verify-sample-at.mjs",
 	"test/verify-scene-asset-cache.mjs",

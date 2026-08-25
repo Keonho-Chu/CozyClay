@@ -8386,3 +8386,78 @@ input[type=range] {
 	font-size: 9px;
 	letter-spacing: .04em;
 }
+
+/* --------------------------------------------------- failure containment --- */
+/* The crash screen replaces the whole app when a render error escapes the
+   tree; the GL overlay covers the stage while the browser restores a lost
+   context. Both are deliberately plain — they must render when app state is
+   exactly what just broke. */
+.crash-screen {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 24px;
+	background: var(--bg, #1e1e1e);
+	color: var(--fg, #d2d2d2);
+	text-align: center;
+}
+.crash-screen h1 {
+	font-size: 18px;
+	margin: 0;
+}
+.crash-screen p {
+	margin: 0;
+	color: var(--muted, #9a9a9a);
+	max-width: 52ch;
+}
+.crash-screen .crash-detail {
+	max-width: min(72ch, 90vw);
+	overflow: auto;
+	padding: 10px 14px;
+	border: 1px solid var(--line2, #3c3c3c);
+	border-radius: 6px;
+	background: var(--panel, #2c2c2c);
+	color: var(--muted, #9a9a9a);
+	font-size: 12px;
+	text-align: left;
+	white-space: pre-wrap;
+}
+.crash-screen button,
+.gl-lost-card button {
+	padding: 6px 16px;
+	border: 1px solid var(--line2, #3c3c3c);
+	border-radius: 6px;
+	background: var(--card, #383838);
+	color: var(--fg, #d2d2d2);
+	cursor: pointer;
+}
+.gl-lost-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 9;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(12, 12, 14, .78);
+}
+.gl-lost-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	max-width: 46ch;
+	padding: 18px 22px;
+	border: 1px solid var(--line2, #3c3c3c);
+	border-radius: 8px;
+	background: var(--panel, #2c2c2c);
+	color: var(--fg, #d2d2d2);
+	text-align: center;
+}
+.gl-lost-card p {
+	margin: 0;
+	color: var(--muted, #9a9a9a);
+	font-size: 12px;
+}
