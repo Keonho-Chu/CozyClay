@@ -19,7 +19,7 @@
  */
 
 import { POSE_BONES, normalizeBoneName } from "../poses.js";
-import { forwardFrom } from "../controls.jsx";
+import { forward as forwardFrom } from "../camera-move.js";
 
 /** Wire key for a POSE_BONES entry: the Mixamo name without the `mixamorig`
  * prefix, which is exactly the cskel27 joint name ("mixamorigLeftArm" ->

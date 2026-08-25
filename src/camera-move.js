@@ -19,8 +19,10 @@ export function captureFraming({ pos, yaw, pitch, fovDeg }) {
 }
 
 // yaw/pitch -> unit forward vector. Mirrors forwardFrom() in controls.jsx,
-// re-stated here so this module stays importable without three.js.
-function forward(yaw, pitch) {
+// re-stated here so this module stays importable without three.js. Exported
+// for consumers that need the same vector without the three.js wrapper
+// (ardy/export.js builds the pose-bridge camera block from it).
+export function forward(yaw, pitch) {
 	const cp = Math.cos(pitch);
 	return { x: -Math.sin(yaw) * cp, y: Math.sin(pitch), z: -Math.cos(yaw) * cp };
 }
