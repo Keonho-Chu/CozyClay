@@ -13,7 +13,7 @@
 <p align="center">
   <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-blue"></a>
   <a href="https://www.npmjs.com/package/cozyclay"><img alt="npm" src="https://img.shields.io/npm/v/cozyclay"></a>
-  <img alt="Node 22+" src="https://img.shields.io/badge/node-22%2B-brightgreen">
+  <img alt="Node 22.13+" src="https://img.shields.io/badge/node-22.13%2B-brightgreen">
   <a href="https://github.com/NomaDamas/CozyClay/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/NomaDamas/CozyClay?style=flat"></a>
 </p>
 
@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/1d0113e5-6922-443d-affc-1bdabc666247
 
 ## Requirements
 
-- Node.js 22 or newer
+- Node.js 22.13 or newer
 - npm, or bun
 - A Chromium-based browser
 * An SSH-accessible NVIDIA machine running Kimodo, for motion generation — run `npm run kimodo:setup` once; the first setup downloads the Kimodo checkpoint and text-encoder stack.

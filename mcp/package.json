@@ -17,7 +17,7 @@
 		"verify:motion-job": "node verify-live-motion-job.mjs"
 	},
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.13"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.30.0",

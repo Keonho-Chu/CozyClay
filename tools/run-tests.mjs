@@ -164,6 +164,22 @@ function run(file) {
 	});
 }
 
+// node:sqlite's DatabaseSync only ships unflagged from Node 22.13.0 (it lived
+// behind --experimental-sqlite before that). package.json requires >=22.13,
+// but older 22.x installs are still common enough that the manifest should
+// degrade gracefully instead of aborting the whole run.
+const NODE_SQLITE_MIN = [22, 13, 0];
+const NODE_SQLITE_FILES = ["test/demo/verify-ops.mjs", "test/demo/verify-queue-concurrency.mjs"];
+
+function meetsMinimumNodeVersion([major, minor, patch], current = process.versions.node) {
+	const [currentMajor, currentMinor, currentPatch] = current.split(".").map(Number);
+	if (currentMajor !== major) return currentMajor > major;
+	if (currentMinor !== minor) return currentMinor > minor;
+	return currentPatch >= patch;
+}
+
+const hasNodeSqlite = meetsMinimumNodeVersion(NODE_SQLITE_MIN);
+
 const categories = new Map([
 	...NODE_FILES.map((file) => [file, { kind: "node", reason: "runs directly under Node" }]),
 	...BROWSER_FILES.map((file) => [file, { kind: "browser", reason: "requires the QA browser wrapper and a running Vite app" }]),
@@ -171,6 +187,15 @@ const categories = new Map([
 	...["mcp/verify-live-batch.mjs", "mcp/verify-live-capture.mjs", "mcp/verify-live-editor-model.mjs", "mcp/verify-live-scene-parity.mjs"].map(
 		(file) => [file, { kind: "browser", reason: "drives a real Chrome editor over the live socket" }],
 	),
+	...NODE_SQLITE_FILES.map((file) => [
+		file,
+		hasNodeSqlite
+			? { kind: "node", reason: "runs directly under Node" }
+			: {
+					kind: "sqlite",
+					reason: `requires node:sqlite, unflagged only from Node >=${NODE_SQLITE_MIN.join(".")} (current runtime is Node ${process.versions.node})`,
+				},
+	]),
 ]);
 const { listOnly, scope } = parseArguments(process.argv.slice(2));
 const inventory = [...verificationFiles("test"), ...verificationFiles("mcp")];

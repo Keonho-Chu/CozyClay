@@ -5,7 +5,7 @@
 	"description": "Pinned dependencies for CozyClay's on-demand MCP runtime.",
 	"type": "module",
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.13"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "1.30.0",
