@@ -666,7 +666,8 @@ pass("the restart backoff is 1 s, 5 s, 25 s and then capped");
 		// The serve loop's protocol helpers are pure python and testable without
 		// torch: the base64 blob this suite builds on the JS side must decode to
 		// the same numbers on the box side.
-		const blob = encodeFloat32(new Float32Array([1.5, -2.25, 0, 1e-7, 3, 4]), [1, 2, 3]);
+		const codecSource = new Float32Array([1.5, -2.25, 0, 1e-7, 3, 4]);
+		const blob = encodeFloat32(codecSource, [1, 2, 3]);
 		const script = [
 			"import importlib.util, json, sys",
 			`spec = importlib.util.spec_from_file_location('drv', ${JSON.stringify(driver)})`,
@@ -684,7 +685,13 @@ pass("the restart backoff is 1 s, 5 s, 25 s and then capped");
 		} else {
 			const [values, round] = decoded.stdout.trim().split("\n").map((line) => JSON.parse(line));
 			assert.deepEqual(values.shape, [1, 2, 3]);
-			assert.deepEqual(values.values, [1.5, -2.25, 0, 1e-7, 3, 4]);
+			// numpy's `float(v)` widens the stored float32 to a python double, same as
+			// reading a Float32Array element in JS — both are exact bit widenings with
+			// no further rounding. But a *literal* like 1e-7 is a float64 the moment
+			// it's typed, and 1e-7 has no exact float32 representation, so the literal
+			// and the widened-float32 value differ starting at the 8th significant
+			// digit. Compare against the float32-rounded expectation, not the literal.
+			assert.deepEqual(values.values, Array.from(codecSource));
 			assert.equal(round.same, true, "the box re-encodes the same bytes it received");
 			assert.deepEqual(round.shape, [1, 2, 3]);
 			assert.equal(round.dtype, "float32");
