@@ -266,6 +266,20 @@ async function expectLifecycle(kind) {
 	}
 }
 
+// Poll until the studio answers on `port`, or the child dies first.
+async function waitForStudio(port, child) {
+	for (;;) {
+		if (child.exitCode !== null) throw new Error(`dev exited with code ${child.exitCode} before serving the studio`);
+		try {
+			const res = await fetch(`http://127.0.0.1:${port}/app/`);
+			await res.arrayBuffer();
+			return res;
+		} catch {
+			await new Promise((resolve) => setTimeout(resolve, 200));
+		}
+	}
+}
+
 // A fresh clone has no CCLAY_KIMODO_HOST, and that must not be a startup
 // failure: `npm run dev` then serves the studio without motion generation, the
 // way `npx cozyclay` and `npm run dev:ui` already do. The sidecar refuses to
@@ -288,9 +302,9 @@ async function expectDevStartsWithoutKimodoHost() {
 			/CCLAY_KIMODO_HOST is not set .* without motion generation/,
 			"dev names the missing Kimodo host without failing",
 		);
-		await output.waitFor(/Local:\s+http:\/\/127\.0\.0\.1:\d+/, "dev Vite readiness without a bridge");
-		const res = await withTimeout(fetch(`http://127.0.0.1:${port}/app/`), "dev studio response without a bridge");
-		await res.arrayBuffer();
+		// Vite's banner is coloured on a CI runner and plain in a local pipe, so
+		// readiness is the studio answering, not a line of output.
+		const res = await withTimeout(waitForStudio(port, child), "dev studio response without a bridge");
 		assert.equal(res.status, 200, "dev serves the studio without a bridge");
 		assert.equal(child.exitCode, null, "dev stays up without a Kimodo host");
 		assert.doesNotMatch(output.all(), /motion dev bridge listening/, "dev starts no bridge without a Kimodo host");
