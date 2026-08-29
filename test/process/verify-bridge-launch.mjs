@@ -266,8 +266,42 @@ async function expectLifecycle(kind) {
 	}
 }
 
+// A fresh clone has no CCLAY_KIMODO_HOST, and that must not be a startup
+// failure: `npm run dev` then serves the studio without motion generation, the
+// way `npx cozyclay` and `npm run dev:ui` already do. The sidecar refuses to
+// run without a box to talk to, so launching it anyway killed the studio over
+// a variable a first-time contributor has no reason to have set.
+async function expectDevStartsWithoutKimodoHost() {
+	const reservation = createServer();
+	const port = await listen(reservation);
+	await close(reservation);
+	const env = { ...process.env };
+	delete env.CCLAY_KIMODO_HOST;
+	const child = spawnOwned(process.execPath, ["tools/dev-full.mjs", "--host", "127.0.0.1", "--port", String(port)], {
+		cwd: REPO,
+		env,
+		stdio: ["ignore", "pipe", "pipe"],
+	});
+	const output = createOutputWatcher(child);
+	try {
+		await output.waitFor(
+			/CCLAY_KIMODO_HOST is not set .* without motion generation/,
+			"dev names the missing Kimodo host without failing",
+		);
+		await output.waitFor(/Local:\s+http:\/\/127\.0\.0\.1:\d+/, "dev Vite readiness without a bridge");
+		const res = await withTimeout(fetch(`http://127.0.0.1:${port}/app/`), "dev studio response without a bridge");
+		await res.arrayBuffer();
+		assert.equal(res.status, 200, "dev serves the studio without a bridge");
+		assert.equal(child.exitCode, null, "dev stays up without a Kimodo host");
+		assert.doesNotMatch(output.all(), /motion dev bridge listening/, "dev starts no bridge without a Kimodo host");
+	} finally {
+		await terminateOwned(child);
+	}
+}
+
 await expectBridgeIpcReadiness();
 await expectForeignListenerDoesNotReportBridgeReady();
+await expectDevStartsWithoutKimodoHost();
 {
 	const invalidMainPort = spawnOwned(process.execPath, ["bin/cozyclay.mjs", "--port", "65535", "--no-open", "--no-star"], {
 		cwd: REPO,
